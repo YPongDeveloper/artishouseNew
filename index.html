@@ -1,0 +1,807 @@
+<!-- 
+  ========================================================================
+  © Copyright 2026 by Mr. Pongsakorn Yimsuk-anan in Thailand.
+  All rights reserved. Designed and developed for The Heritage House (Demo Showcase).
+  ========================================================================
+-->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <!-- ============================================
+       SECURITY HEADERS (HTML Meta Level)
+       ============================================ -->
+  <meta http-equiv="Content-Security-Policy"
+    content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline';
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: https://static.wixstatic.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://*.cartocdn.com;
+      connect-src 'self';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self' mailto:;
+    ">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+
+  <!-- ============================================
+       SEO & META
+       ============================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Heritage House · เรือนศิลป์ริมน้ำ — ท่องเที่ยวเชิงศิลปะและวัฒนธรรม (Demo Showcase)</title>
+  <meta name="description"
+    content="The Heritage House (เรือนศิลป์ริมน้ำ) — สัมผัสเสน่ห์เรือนไม้ไทยโบราณริมสายน้ำ ชมการแสดงหุ่นกระบอก เวิร์กช็อปงานศิลปะ และคาเฟ่ริมน้ำ ในบรรยากาศย้อนยุค (Interactive Demo Showcase)">
+  <meta name="keywords" content="เรือนศิลป์ริมน้ำ, The Heritage House, หุ่นกระบอกไทย, เวิร์กช็อปศิลปะ, ท่องเที่ยวเชิงวัฒนธรรม, Thai heritage house, art workshop, demo showcase">
+  <meta name="author" content="The Heritage House (Demo Showcase)">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://heritagehouse-demo.example.com/">
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://heritagehouse-demo.example.com/">
+  <meta property="og:title" content="The Heritage House · เรือนศิลป์ริมน้ำ (Demo Showcase)">
+  <meta property="og:description" content="สัมผัสเสน่ห์เรือนไม้ไทยโบราณริมสายน้ำ ชมหุ่นกระบอก เวิร์กช็อปศิลปะ และคาเฟ่ริมน้ำ (Demo Showcase)">
+  <meta property="og:image" content="images/hero_canal_house.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#7A1C2E">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="css/leaflet.css">
+  <script src="js/leaflet.js"></script>
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+
+  <!-- ============================================
+       SCROLL PROGRESS BAR
+       ============================================ -->
+  <div id="scroll-progress" aria-hidden="true" style="
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: linear-gradient(to right, #C9A84C, #E8C96A);
+    z-index: 2000; width: 0; transition: width 0.1s linear;
+  "></div>
+
+  <!-- ============================================
+       VERTICAL SCROLL INDICATOR DOTS
+       ============================================ -->
+  <div class="scroll-indicator-nav" aria-hidden="true">
+    <a href="#hero" class="indicator-dot active" title="Hero"></a>
+    <a href="#about" class="indicator-dot" title="About"></a>
+    <a href="#experiences" class="indicator-dot" title="Experiences"></a>
+    <a href="#gallery" class="indicator-dot" title="Gallery"></a>
+    <a href="#cafe" class="indicator-dot" title="Cafe"></a>
+    <a href="#getting-there" class="indicator-dot" title="Getting There"></a>
+    <a href="#contact" class="indicator-dot" title="Contact"></a>
+  </div>
+
+  <!-- ============================================
+       NAVIGATION
+       ============================================ -->
+  <nav id="navbar" aria-label="Main navigation">
+    <a href="#hero" class="nav-logo" aria-label="The Heritage House - Home">
+      <div class="logo-circle">
+        <img src="images/logo.png" alt="The Heritage House Logo" width="45" height="65">
+      </div>
+      <div class="logo-text-group">
+        <span class="logo-en">The Heritage House</span>
+        <span class="logo-th">เรือนศิลป์ริมน้ำ · Demo Showcase</span>
+      </div>
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="#about">Our Story</a></li>
+      <li><a href="#experiences">Experiences</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#cafe">Cafe</a></li>
+      <li><a href="#getting-there">Visit Us</a></li>
+      <li><a href="#contact" class="nav-cta">Contact</a></li>
+    </ul>
+
+    <button class="hamburger" id="hamburger" aria-label="Toggle mobile menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile Nav -->
+  <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation">
+    <a href="#about">Our Story</a>
+    <a href="#experiences">Experiences</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#cafe">Cafe</a>
+    <a href="#getting-there">Visit Us</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <main>
+    <!-- ============================================
+         HERO SECTION
+         ============================================ -->
+    <section id="hero" aria-labelledby="hero-title">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-overlay" aria-hidden="true"></div>
+      <div class="hero-pattern" aria-hidden="true"></div>
+
+      <div class="hero-content">
+        <p class="hero-eyebrow">Welcome to</p>
+
+        <h1 id="hero-title" class="hero-title">
+          The Heritage<br>
+          <span class="gold">House</span>
+        </h1>
+
+        <p class="hero-title-th">เรือนศิลป์ริมน้ำ · วิถีวัฒนธรรมมีชีวิต</p>
+
+        <div class="hero-divider" aria-hidden="true">
+          <div class="hero-divider-line"></div>
+          <div class="hero-divider-diamond"></div>
+          <div class="hero-divider-line right"></div>
+        </div>
+
+        <p class="hero-desc">
+          สัมผัสเสน่ห์เรือนไม้ไทยโบราณ อายุกว่าหนึ่งศตวรรษ<br>
+          ริมสายน้ำแห่งประวัติศาสตร์ — แหล่งรวมศิลปวัฒนธรรม<br>
+          และอัตลักษณ์วิถีชีวิตดั้งเดิมที่เปี่ยมด้วยมนต์ขลัง
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#experiences" class="btn-primary" id="hero-explore-btn">
+            <span>Explore Experiences</span>
+          </a>
+          <a href="#about" class="btn-outline" id="hero-story-btn">Our Story</a>
+        </div>
+      </div>
+
+      <div class="hero-scroll-hint" aria-hidden="true">
+        <span>Scroll</span>
+        <div class="scroll-arrow"></div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         HOURS BANNER
+         ============================================ -->
+    <div class="hours-banner" role="complementary" aria-label="Operating hours">
+      <div class="hours-item">
+        <span class="hours-icon">🕘</span>
+        <span class="hours-text">เปิดบริการ — เสาร์–อาทิตย์ &amp; วันหยุดนักขัตฤกษ์ · 09:00–18:00 น.</span>
+      </div>
+      <div class="hours-item">
+        <span class="hours-icon">🎭</span>
+        <span class="hours-text">การแสดงหุ่นกระบอกไทย · เสาร์–อาทิตย์ 14:00 น.</span>
+      </div>
+      <div class="hours-item">
+        <span class="hours-icon">📍</span>
+        <span class="hours-text">ริมสายน้ำประวัติศาสตร์ ฝั่งธนบุรี (พิกัดจำลอง Demo Showcase)</span>
+      </div>
+    </div>
+
+    <!-- ============================================
+         ABOUT SECTION
+         ============================================ -->
+    <section id="about" aria-labelledby="about-title">
+      <div class="about-grid">
+
+        <div class="about-image-stack reveal-left">
+          <img
+            class="about-img-main"
+            src="images/hero_canal_house.webp"
+            alt="เรือนไม้โบราณริมสายน้ำ — สถาปัตยกรรมไม้สองชั้นอายุกว่า 100 ปีที่ผสมผสานศิลปะและธรรมชาติเข้าด้วยกัน"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <img
+            class="about-img-accent"
+            src="images/lotus.webp"
+            alt="ดอกบัวริมสายน้ำ — สัญลักษณ์แห่งความบริสุทธิ์และศิลปวัฒนธรรมไทย"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="about-img-badge">
+            <span class="year">100+</span>
+            <span class="year-label">ปีแห่งประวัติศาสตร์</span>
+          </div>
+        </div>
+
+        <div class="about-text reveal-right">
+          <span class="about-subtitle">Our Story · เรื่องราวของเรา</span>
+          <h2 id="about-title" class="about-title">
+            The Heritage House —<br>A Living Cultural Canvas
+          </h2>
+          <p class="about-title-th">เรือนศิลป์ริมน้ำ — ผืนผ้าใบแห่งวัฒนธรรมมีชีวิต</p>
+          <div class="about-divider" aria-hidden="true"></div>
+
+          <p class="about-body">
+            <strong>เรือนศิลป์ริมน้ำ</strong> (The Heritage House) ต้นแบบโครงการพื้นที่สร้างสรรค์และศูนย์กลางการเรียนรู้วัฒนธรรมริมสายน้ำ 
+            ตั้งอยู่ริมลำน้ำสายประวัติศาสตร์ในย่านฝั่งธนบุรี กรุงเทพมหานคร โดดเด่นด้วยสถาปัตยกรรมเรือนไม้โบราณสไตล์มะนิลา (Manila Style) 
+            อายุกว่าหนึ่งศตวรรษ ซึ่งได้รับการอนุรักษ์และปรับปรุงเป็นพื้นที่ศิลปะร่วมสมัย
+          </p>
+          <p class="about-body">
+            ปัจจุบัน พื้นที่แห่งนี้เป็นทั้งหอศิลป์ ร้านกาแฟริมน้ำ ลานเวิร์กช็อปหัตถศิลป์สร้างสรรค์ 
+            และแหล่งพบปะของศิลปินและผู้รักงานศิลป์ อีกทั้งยังมีการแสดงหุ่นกระบอกไทยโบราณอันเป็นเอกลักษณ์ 
+            ท่ามกลางบรรยากาศริมสายน้ำอันเงียบสงบที่สะท้อนวิถีชีวิตดั้งเดิมอย่างงดงาม 
+            <em>(โครงการตัวอย่างสำหรับการนำเสนอผลงาน Demo Showcase)</em>
+          </p>
+
+          <div class="about-stats">
+            <div class="about-stat">
+              <span
+                class="stat-num"
+                data-target="100"
+                data-suffix="+"
+                aria-label="100 ปีขึ้นไปแห่งประวัติศาสตร์"
+              >0+</span>
+              <span class="stat-label">ปีแห่งประวัติศาสตร์</span>
+            </div>
+            <div class="about-stat">
+              <span
+                class="stat-num"
+                data-target="20"
+                data-suffix="+"
+                aria-label="กิจกรรมเวิร์กช็อปมากกว่า 20 อย่าง"
+              >0+</span>
+              <span class="stat-label">กิจกรรมเวิร์กช็อป</span>
+            </div>
+            <div class="about-stat">
+              <span
+                class="stat-num"
+                data-target="5"
+                data-suffix="★"
+                aria-label="5 ดาวจากนักท่องเที่ยว"
+              >0★</span>
+              <span class="stat-label">รีวิวนักท่องเที่ยว</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Wave Divider -->
+    <div class="wave-divider" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,40 C180,80 360,0 540,40 C720,80 900,0 1080,40 C1260,80 1440,20 1440,40 L1440,80 L0,80 Z" fill="#2A1A0E"/>
+      </svg>
+    </div>
+
+    <!-- ============================================
+         EXPERIENCES SECTION
+         ============================================ -->
+    <section id="experiences" aria-labelledby="experiences-title">
+      <div class="section-header">
+        <span class="section-eyebrow">What Awaits You</span>
+        <h2 id="experiences-title" class="section-title">Our Experiences</h2>
+        <div class="section-ornament" aria-hidden="true">
+          <div class="ornament-line"></div>
+          <div class="ornament-diamond"></div>
+          <div class="ornament-line right"></div>
+        </div>
+        <p class="section-title-th">ประสบการณ์ที่รอคุณอยู่</p>
+      </div>
+
+      <div class="experiences-grid">
+
+        <!-- Card 1: Puppet Show -->
+        <article class="exp-card reveal delay-1" aria-label="การแสดงหุ่นกระบอกไทย">
+          <img
+            class="exp-card-img"
+            src="images/puppet_show.webp"
+            alt="การแสดงหุ่นกระบอกไทยโบราณ มีตุ๊กตาไทยทรงเครื่องทองคำสีสันสดใสบนเวทีไม้โบราณ"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="exp-card-body">
+            <span class="exp-card-icon" aria-hidden="true">🎭</span>
+            <h3 class="exp-card-title">Thai Puppet Show</h3>
+            <p class="exp-card-title-th">การแสดงหุ่นกระบอกไทย</p>
+            <p class="exp-card-desc">
+              ชมการแสดงหุ่นกระบอกไทยโบราณ (หุ่นขน้าย) โดยศิลปินชุมชน
+              บนเวทีกลางแจ้งริมคลอง ท่ามกลางบรรยากาศย้อนยุคที่ทรงคุณค่า
+            </p>
+            <p class="exp-card-price">🕑 เสาร์–อาทิตย์ · 14:00 น. · Free Admission</p>
+          </div>
+        </article>
+
+        <!-- Card 2: Art Workshop -->
+        <article class="exp-card reveal delay-2" aria-label="เวิร์กช็อปศิลปะ">
+          <img
+            class="exp-card-img"
+            src="images/art_workshop.webp"
+            alt="เวิร์กช็อปวาดภาพลายไทยด้วยสีน้ำ มืออยู่ในระหว่างวาดลวดลายไทยบนโต๊ะไม้เก่า"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="exp-card-body">
+            <span class="exp-card-icon" aria-hidden="true">🎨</span>
+            <h3 class="exp-card-title">Art Workshops</h3>
+            <p class="exp-card-title-th">เวิร์กช็อปงานศิลปะ</p>
+            <p class="exp-card-desc">
+              สนุกไปกับกิจกรรมงานฝีมือ เช่น ร้อยลูกปัด วาดภาพลายไทย
+              ทำหน้ากาก ทอผ้า และอีกมากมาย เหมาะสำหรับทุกวัย
+            </p>
+            <p class="exp-card-price">💰 เริ่มต้น 100–200 บาท / กิจกรรม</p>
+          </div>
+        </article>
+
+        <!-- Card 3: Art Gallery -->
+        <article class="exp-card reveal delay-3" aria-label="หอศิลป์">
+          <img
+            class="exp-card-img"
+            src="images/gallery.webp"
+            alt="หอศิลป์ภายในเรือนไม้โบราณ มีผลงานจิตรกรรมไทยบนผนังไม้สักเก่าแก่"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="exp-card-body">
+            <span class="exp-card-icon" aria-hidden="true">🖼️</span>
+            <h3 class="exp-card-title">Art Gallery</h3>
+            <p class="exp-card-title-th">หอศิลป์เรือนศิลป์</p>
+            <p class="exp-card-desc">
+              ชมผลงานจิตรกรรมและประติมากรรมของศิลปินที่จัดแสดง
+              บนผนังไม้เก่าแก่ ผสมผสานศิลปะไทยร่วมสมัยและดั้งเดิม
+            </p>
+            <p class="exp-card-price">🎟️ ไม่มีค่าเข้าชม · Open Gallery</p>
+          </div>
+        </article>
+
+        <!-- Card 4: Canal Cafe -->
+        <article class="exp-card reveal delay-4" aria-label="คาเฟ่ริมน้ำ">
+          <img
+            class="exp-card-img"
+            src="images/cafe.webp"
+            alt="คาเฟ่เรือนไม้ริมน้ำ มีโต๊ะไม้บนเรือนแพริมสายน้ำ พร้อมเครื่องดื่มไทยและขนมท้องถิ่น"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="exp-card-body">
+            <span class="exp-card-icon" aria-hidden="true">☕</span>
+            <h3 class="exp-card-title">Canal-Side Café</h3>
+            <p class="exp-card-title-th">คาเฟ่เรือนไม้ริมน้ำ</p>
+            <p class="exp-card-desc">
+              จิบเครื่องดื่มและทานขนมไทยท้องถิ่น บนระเบียงไม้เก่าริมน้ำ
+              ชมวิวเรือแล่นผ่านสายน้ำเงียบสงบ ในบรรยากาศย้อนยุคที่ผ่อนคลาย
+            </p>
+            <p class="exp-card-price">🕘 เปิด 09:00–18:00 น. · เสาร์–อาทิตย์</p>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ============================================
+         QUOTE SECTION
+         ============================================ -->
+    <div class="quote-section" role="complementary">
+      <p class="quote-text reveal">
+        "ศิลปะไม่ใช่สิ่งที่คุณมอง แต่คือสิ่งที่ทำให้คนอื่นมองเห็น"
+      </p>
+      <p class="quote-author reveal delay-2">
+        — Edgar Degas · ปรัชญาแห่งการสร้างสรรค์ศิลปวัฒนธรรม
+      </p>
+    </div>
+
+    <!-- ============================================
+         GALLERY SECTION
+         ============================================ -->
+    <section id="gallery" aria-labelledby="gallery-title">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">Visual Journey</span>
+        <h2 id="gallery-title" class="section-title">Gallery</h2>
+        <div class="section-ornament" aria-hidden="true">
+          <div class="ornament-line"></div>
+          <div class="ornament-diamond"></div>
+          <div class="ornament-line right"></div>
+        </div>
+        <p class="section-title-th">ภาพบรรยากาศเรือนศิลป์ริมน้ำ</p>
+      </div>
+
+      <div class="gallery-grid" role="list" aria-label="Photo gallery of The Heritage House">
+
+        <div class="gallery-item tall" data-lightbox role="listitem" tabindex="0" aria-label="คลิกเพื่อดูภาพขยาย">
+          <img
+            src="images/hero_canal_house.webp"
+            alt="เรือนไม้โบราณริมสายน้ำยามเย็น แสงอาทิตย์ตกทอดสีทองบนเรือนไม้ริมน้ำ"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="gallery-caption">
+            <p class="gallery-caption-text">เรือนศิลป์ริมน้ำยามพระอาทิตย์ตก</p>
+            <p class="gallery-caption-sub">The Heritage House · Sunset View</p>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-lightbox role="listitem" tabindex="0" aria-label="คลิกเพื่อดูภาพขยาย">
+          <img
+            src="images/puppet_show.webp"
+            alt="การแสดงหุ่นกระบอกไทยโบราณบนเวทีกลางแจ้ง มีหุ่นสวมชุดทองคำอลังการ"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="gallery-caption">
+            <p class="gallery-caption-text">หุ่นกระบอกไทย — ศิลปะที่มีชีวิต</p>
+            <p class="gallery-caption-sub">Traditional Thai Puppet · Heritage Show</p>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-lightbox role="listitem" tabindex="0" aria-label="คลิกเพื่อดูภาพขยาย">
+          <img
+            src="images/art_workshop.webp"
+            alt="เวิร์กช็อปศิลปะในเรือนไม้โบราณ ผู้เข้าร่วมกำลังวาดภาพลายไทยด้วยสีทอง"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="gallery-caption">
+            <p class="gallery-caption-text">เวิร์กช็อปงานฝีมือไทย</p>
+            <p class="gallery-caption-sub">Art Workshop · Hand-crafted</p>
+          </div>
+        </div>
+
+        <div class="gallery-item wide" data-lightbox role="listitem" tabindex="0" aria-label="คลิกเพื่อดูภาพขยาย">
+          <img
+            src="images/cafe.webp"
+            alt="คาเฟ่ริมน้ำเรือนไม้ ระเบียงไม้เก่าเหนือสายน้ำ มีเครื่องดื่มไทยและโคมไฟกระดาษ"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="gallery-caption">
+            <p class="gallery-caption-text">คาเฟ่เรือนไม้ริมน้ำ</p>
+            <p class="gallery-caption-sub">Canal-Side Café · Heritage House</p>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-lightbox role="listitem" tabindex="0" aria-label="คลิกเพื่อดูภาพขยาย">
+          <img
+            src="images/gallery.webp"
+            alt="หอศิลป์ภายในเรือนไม้โบราณ มีผลงานจิตรกรรมสีน้ำมันไทยร่วมสมัยบนผนังเก่า"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="gallery-caption">
+            <p class="gallery-caption-text">หอศิลป์เรือนศิลป์</p>
+            <p class="gallery-caption-sub">Art Gallery · Contemporary Thai Art</p>
+          </div>
+        </div>
+
+        <div class="gallery-item" data-lightbox role="listitem" tabindex="0" aria-label="คลิกเพื่อดูภาพขยาย">
+          <img
+            src="images/lotus.webp"
+            alt="ดอกบัวชมพูและขาวบานริมสายน้ำยามเช้า แสงทองส่องสะท้อนบนผิวน้ำ"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="gallery-caption">
+            <p class="gallery-caption-text">ดอกบัวริมสายน้ำ</p>
+            <p class="gallery-caption-sub">Lotus Bloom · Riverside View</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================
+         CAFE SECTION
+         ============================================ -->
+    <section id="cafe" aria-labelledby="cafe-title">
+      <div class="cafe-grid">
+
+        <div class="cafe-img-wrapper reveal-left">
+          <img
+            class="cafe-img-main"
+            src="images/cafe.webp"
+            alt="บรรยากาศภายในคาเฟ่ริมน้ำ มีน้ำชาไทยสีส้มสดใสเสิร์ฟบนโต๊ะไม้ท่ามกลางแสงอาทิตย์ตก"
+            width="1024"
+            height="1024"
+            loading="lazy"
+          >
+          <div class="cafe-img-badge" aria-label="เปิดบริการทุกวันเสาร์–อาทิตย์">
+            <span class="badge-main">Open<br>Sat–Sun</span>
+            <span class="badge-th">เปิดวันหยุด</span>
+          </div>
+        </div>
+
+        <div class="reveal-right">
+          <span class="about-subtitle">Canal-Side Café · คาเฟ่ริมน้ำ</span>
+          <h2 id="cafe-title" class="about-title">
+            Sip &amp; Savor<br>
+            <span style="color: var(--gold);">by the River</span>
+          </h2>
+          <p class="about-title-th">จิบ · ชม · สัมผัส บรรยากาศริมสายน้ำ</p>
+          <div class="about-divider" aria-hidden="true"></div>
+          <p class="about-body">
+            คาเฟ่ของเรือนศิลป์ริมน้ำตั้งอยู่บนระเบียงไม้เก่าแก่ที่ยื่นออกไปเหนือผิวน้ำ
+            เพลิดเพลินกับเครื่องดื่มไทยและขนมท้องถิ่น ท่ามกลางเสียงสายน้ำไหลเบาๆ
+            และบรรยากาศอันร่มรื่นที่หาได้ยากในเมืองหลวง
+          </p>
+
+          <div class="cafe-menu-grid" role="list" aria-label="เมนูเครื่องดื่มและขนม">
+            <div class="cafe-menu-item" role="listitem">
+              <p class="cafe-menu-name">Thai Iced Tea</p>
+              <p class="cafe-menu-name-th">ชาไทยเย็น</p>
+              <p class="cafe-menu-price">50 ฿</p>
+            </div>
+            <div class="cafe-menu-item" role="listitem">
+              <p class="cafe-menu-name">Butterfly Pea Latte</p>
+              <p class="cafe-menu-name-th">อัญชันลาเต้</p>
+              <p class="cafe-menu-price">70 ฿</p>
+            </div>
+            <div class="cafe-menu-item" role="listitem">
+              <p class="cafe-menu-name">Taro Smoothie</p>
+              <p class="cafe-menu-name-th">สมูทตี้เผือก</p>
+              <p class="cafe-menu-price">60 ฿</p>
+            </div>
+            <div class="cafe-menu-item" role="listitem">
+              <p class="cafe-menu-name">Khanom Thai Platter</p>
+              <p class="cafe-menu-name-th">ขนมไทยรวมมิตร</p>
+              <p class="cafe-menu-price">80 ฿</p>
+            </div>
+            <div class="cafe-menu-item" role="listitem">
+              <p class="cafe-menu-name">Pandan Rice Cake</p>
+              <p class="cafe-menu-name-th">ขนมชั้นใบเตย</p>
+              <p class="cafe-menu-price">50 ฿</p>
+            </div>
+            <div class="cafe-menu-item" role="listitem">
+              <p class="cafe-menu-name">Canal Breeze Soda</p>
+              <p class="cafe-menu-name-th">โซดาสมุนไพรไทย</p>
+              <p class="cafe-menu-price">55 ฿</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Wave Divider -->
+    <div class="wave-divider" aria-hidden="true" style="transform: rotate(180deg);">
+      <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,40 C180,80 360,0 540,40 C720,80 900,0 1080,40 C1260,80 1440,20 1440,40 L1440,80 L0,80 Z" fill="#2A1A0E"/>
+      </svg>
+    </div>
+
+    <!-- ============================================
+         GETTING THERE SECTION
+         ============================================ -->
+    <section id="getting-there" aria-labelledby="getting-there-title">
+      <div class="section-header">
+        <span class="section-eyebrow">Plan Your Visit</span>
+        <h2 id="getting-there-title" class="section-title">Getting Here</h2>
+        <div class="section-ornament" aria-hidden="true">
+          <div class="ornament-line"></div>
+          <div class="ornament-diamond"></div>
+          <div class="ornament-line right"></div>
+        </div>
+        <p class="section-title-th">วิธีการเดินทางสู่โครงการ (Demo Guide)</p>
+      </div>
+
+      <div class="getting-there-grid">
+
+        <div class="map-wrapper reveal-left">
+          <div id="map" style="height: 400px; width: 100%; z-index: 5;"></div>
+        </div>
+
+        <div class="transport-cards reveal-right">
+
+          <div class="transport-card">
+            <div class="transport-icon" aria-hidden="true">🚇</div>
+            <div>
+              <p class="transport-title">MRT Blue Line</p>
+              <p class="transport-title-th">รถไฟฟ้า MRT สายสีน้ำเงิน</p>
+              <p class="transport-desc">
+                ลงสถานีรถไฟฟ้าใกล้เคียง ทางออกหลัก
+                ต่อรถสาธารณะหรือเรือโดยสารเข้ามายังบริเวณพื้นที่โครงการ ประมาณ 10 นาที
+              </p>
+            </div>
+          </div>
+
+          <div class="transport-card">
+            <div class="transport-icon" aria-hidden="true">🚌</div>
+            <div>
+              <p class="transport-title">Public Bus</p>
+              <p class="transport-title-th">รถประจำทางสาธารณะ</p>
+              <p class="transport-desc">
+                สายรถประจำทางผ่านถนนสายหลัก เชื่อมต่อสู่ย่านชุมชนริมน้ำ
+                เดินเท้าต่อประมาณ 5–10 นาที
+              </p>
+            </div>
+          </div>
+
+          <div class="transport-card">
+            <div class="transport-icon" aria-hidden="true">🚗</div>
+            <div>
+              <p class="transport-title">Private Car / Ride Hailing</p>
+              <p class="transport-title-th">รถส่วนบุคคล / บริการเรียกรถ</p>
+              <p class="transport-desc">
+                มีจุดจอดรถบริการในละแวกใกล้เคียง ค้นหาในแผนที่:
+                <em>"The Heritage House (Demo Showcase)"</em>
+              </p>
+            </div>
+          </div>
+
+          <div class="transport-card">
+            <div class="transport-icon" aria-hidden="true">🚤</div>
+            <div>
+              <p class="transport-title">River Boat</p>
+              <p class="transport-title-th">เรือโดยสารริมสายน้ำ</p>
+              <p class="transport-desc">
+                บริการเรือล่องแม่น้ำและลำคลองประวัติศาสตร์
+                เทียบท่าเรือนไม้โดยตรง ชมทัศนียภาพสองฝั่งน้ำอันทรงคุณค่า
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================
+         CONTACT / FOOTER
+         ============================================ -->
+    <footer id="contact" role="contentinfo" aria-label="ข้อมูลติดต่อและลิงก์">
+
+      <div class="contact-grid">
+
+        <!-- Brand Column -->
+        <div class="contact-brand reveal">
+          <div class="footer-logo-group">
+            <div class="logo-circle footer-logo">
+              <img src="images/logo.png" alt="The Heritage House Logo" width="45" height="65" loading="lazy">
+            </div>
+            <div>
+              <p class="contact-logo">The Heritage House</p>
+              <p class="contact-logo-th">เรือนศิลป์ริมน้ำ · Demo Showcase</p>
+            </div>
+          </div>
+          <p class="contact-desc">
+            พื้นที่แห่งศิลปะ วัฒนธรรม และจิตวิญญาณความเป็นไทย
+            ในเรือนไม้โบราณริมสายน้ำ กรุงเทพมหานคร
+            โครงการต้นแบบเพื่อการนำเสนอผลงาน (Interactive Demo Showcase)
+          </p>
+
+          <nav aria-label="Social media links">
+            <div class="social-links">
+              <a
+                href="https://facebook.com"
+                class="social-btn"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="ติดตามเราบน Facebook"
+                title="Facebook"
+              ><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+              <a
+                href="https://instagram.com"
+                class="social-btn"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="ติดตามเราบน Instagram"
+                title="Instagram"
+              ><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+              <a
+                href="https://line.me"
+                class="social-btn"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="ติดต่อเราบน LINE"
+                title="LINE"
+              ><svg viewBox="0 0 24 24"><path d="M24 10.304c0-5.369-5.383-9.738-12-9.738S0 4.935 0 10.304c0 4.8 4.269 8.8 10.05 9.584.391.085.924.258 1.058.592.122.303.08.777.039 1.084l-.171 1.027c-.052.312-.25 1.222 1.077.667 1.327-.556 7.156-4.211 9.756-7.204 2.197-2.404 2.197-4.14 2.197-5.749zM6.98 12.784H4.551a.486.486 0 01-.486-.486V7.786a.486.486 0 01.486-.486h.486a.486.486 0 01.486.486v3.527h1.458a.486.486 0 01.486.486v.5a.486.486 0 01-.487.485zm2.43 0H8.923a.486.486 0 01-.486-.486V7.786a.486.486 0 01.486-.486h.487a.486.486 0 01.486.486v4.512a.486.486 0 01-.486.486zm5.832 0h-2.194a.486.486 0 01-.486-.486V7.786a.486.486 0 01.486-.486h.486a.486.486 0 01.486.486v3.298l1.452-3.324a.486.486 0 01.442-.294h.547a.486.486 0 01.45.672L14.391 10l1.644 2.14a.486.486 0 01-.387.744h-.615a.486.486 0 01-.383-.186L13.882 10.9l-.64.673v.725a.486.486 0 01-.486.486zm5.265-1.944a.486.486 0 01-.486.486h-1.458V9.868h1.458a.486.486 0 01.486.486v.5a.486.486 0 01-.486.486zm0-2.43a.486.486 0 01-.486.486h-1.458V7.786a.486.486 0 01.486-.486h1.458a.486.486 0 01.486.486v.5a.486.486 0 01-.486.485z"/></svg></a>
+            </div>
+          </nav>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="reveal delay-1">
+          <h3 class="contact-col-title">Contact Us · ติดต่อ</h3>
+          <ul class="contact-info-list">
+            <li>
+              <span class="ci-icon" aria-hidden="true">📍</span>
+              <span>ริมสายน้ำประวัติศาสตร์ ฝั่งธนบุรี (พิกัดจำลองนำเสนอ)<br>เขตคลองสาน กรุงเทพมหานคร 10600</span>
+            </li>
+            <li>
+              <span class="ci-icon" aria-hidden="true">🗺️</span>
+              <a
+                href="#map"
+                aria-label="เปิดแผนที่จำลองตำแหน่งที่ตั้งโครงการ"
+              >
+                ดูตำแหน่งบนแผนที่จำลอง (Demo Map)
+              </a>
+            </li>
+            <li>
+              <span class="ci-icon" aria-hidden="true">✉️</span>
+              <a href="mailto:demo.contact@heritagehouse-showcase.com" aria-label="ส่งอีเมลติดต่อสอบถาม">
+                demo.contact@heritagehouse-showcase.com
+              </a>
+            </li>
+            <li>
+              <span class="ci-icon" aria-hidden="true">🕘</span>
+              <span>เสาร์–อาทิตย์ &amp; วันหยุดนักขัตฤกษ์<br>09:00 – 18:00 น.</span>
+            </li>
+            <li>
+              <span class="ci-icon" aria-hidden="true">🎭</span>
+              <span>การแสดงหุ่นกระบอกไทย<br>เสาร์–อาทิตย์ เวลา 14:00 น.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Quick Nav -->
+        <div class="reveal delay-2">
+          <h3 class="contact-col-title">Explore · สำรวจ</h3>
+          <nav aria-label="Footer navigation">
+            <ul class="contact-nav-list">
+              <li><a href="#about">เรื่องราวของเรา</a></li>
+              <li><a href="#experiences">ประสบการณ์</a></li>
+              <li><a href="#gallery">แกลเลอรีภาพ</a></li>
+              <li><a href="#cafe">คาเฟ่ริมน้ำ</a></li>
+              <li><a href="#getting-there">การเดินทาง</a></li>
+            </ul>
+          </nav>
+        </div>
+
+      </div>
+
+      <!-- Footer Bottom -->
+      <div class="footer-bottom">
+        <div class="footer-copy">
+          <p>&copy; 2024–2026 The Heritage House (Demo Showcase) · กรุงเทพมหานคร</p>
+          <p style="margin-top: 6px; font-size: 0.75rem; opacity: 0.8;">
+            Designed &amp; Developed by <strong>Mr. Pongsakorn Yimsuk-anan</strong> in Thailand · 
+            Email: <a href="mailto:yimsukanan.p@gmail.com" style="text-decoration: underline; color: var(--gold-light);">yimsukanan.p@gmail.com</a>
+          </p>
+        </div>
+        <p class="footer-tagline">
+          "ศิลปะคือเสียงของจิตวิญญาณ"
+        </p>
+      </div>
+
+    </footer>
+  </main>
+
+  <!-- ============================================
+       LIGHTBOX OVERLAY
+       ============================================ -->
+  <div
+    id="lightbox"
+    class="lightbox"
+    role="dialog"
+    aria-label="ภาพขยาย"
+    aria-modal="true"
+  >
+    <button
+      id="lightbox-close"
+      class="lightbox-close"
+      aria-label="ปิดภาพขยาย"
+    >&times;</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+
+  <!-- ============================================
+       MAIN JAVASCRIPT
+       ============================================ -->
+  <script src="js/main.js"></script>
+
+</body>
+</html>
