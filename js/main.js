@@ -278,8 +278,8 @@ function initMap() {
   const mapElement = document.getElementById('map');
   if (!mapElement || typeof L === 'undefined') return;
 
-  const lat = 13.731285;
-  const lng = 100.463313;
+  const lat = 13.728200;
+  const lng = 100.511500;
 
   // Initialize Leaflet map with scrollWheelZoom enabled (Demo scenic location)
   const map = L.map('map', {
@@ -320,8 +320,13 @@ function initMap() {
       <strong style="color: var(--gold-light); font-size: 0.95rem;">The Heritage House</strong><br>
       <span style="font-size: 0.8rem; opacity: 0.85;">เรือนศิลป์ริมน้ำ (Demo Showcase)</span><br>
       <span style="font-size: 0.75rem; color: rgba(255,255,255,0.7); display: block; margin-top: 4px;">
-        พิกัดจำลองสำหรับการนำเสนอผลงาน
+        ริมสายน้ำฝั่งธนบุรี (พิกัดจำลองนำเสนอผลงาน)
       </span>
+      <a href="https://www.google.com/maps?q=13.728200,100.511500" 
+         target="_blank" rel="noopener noreferrer" 
+         style="color: var(--gold); text-decoration: underline; font-size: 0.8rem; margin-top: 6px; display: inline-block;">
+        เปิดดูใน Google Maps
+      </a>
     </div>
   `).openPopup();
 }
