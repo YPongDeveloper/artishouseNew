@@ -298,7 +298,11 @@ function initMap() {
     html: `
       <div class="custom-pin">
         <div class="pin-logo">
-          <img src="images/logo.png" alt="The Heritage House Pin Logo">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-light);">
+            <path d="M3 10.5L12 3l9 7.5"/>
+            <path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/>
+            <path d="M9 21V12h6v9"/>
+          </svg>
         </div>
       </div>
     `,
