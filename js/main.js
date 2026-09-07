@@ -182,11 +182,12 @@ function initSmoothScroll() {
 }
 
 /* ===========================================
-   EXPERIENCE CARDS — Subtle 3D tilt on mouse
+   EXPERIENCE CARDS — Subtle 3D tilt on mouse (Desktop only)
    =========================================== */
 function initCardTilt() {
   document.querySelectorAll('.exp-card').forEach(card => {
     card.addEventListener('mousemove', e => {
+      if (window.innerWidth <= 768) return;
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -198,8 +199,185 @@ function initCardTilt() {
     });
 
     card.addEventListener('mouseleave', () => {
+      if (window.innerWidth <= 768) return;
       card.style.transform = '';
     });
+  });
+}
+
+/* ===========================================
+   EXPERIENCES CAROUSEL (MOBILE AUTO-SCROLL & EXPAND)
+   =========================================== */
+function initMobileExperiencesCarousel() {
+  const container = document.querySelector('.experiences-grid');
+  if (!container) return;
+
+  const originalCards = Array.from(container.querySelectorAll('.exp-card:not(.is-clone)'));
+  if (originalCards.length === 0) return;
+
+  // Clone cards once for continuous seamless looping on mobile
+  if (!container.querySelector('.exp-card.is-clone')) {
+    originalCards.forEach(card => {
+      const clone = card.cloneNode(true);
+      clone.classList.add('is-clone');
+      clone.classList.remove('revealed', 'reveal', 'delay-1', 'delay-2', 'delay-3', 'delay-4');
+      container.appendChild(clone);
+    });
+  }
+
+  let isPaused = false;
+  let isUserInteracting = false;
+  let isExpanded = false;
+  let activeCard = null;
+  let resumeTimer = null;
+  const scrollSpeed = 0.55; // Pixels per frame — smooth & leisurely
+  let loopWidth = 0;
+  let startX = 0;
+  let startY = 0;
+  let isDragging = false;
+
+  function calculateLoopWidth() {
+    const allCards = container.querySelectorAll('.exp-card');
+    if (allCards.length >= 5) {
+      loopWidth = allCards[4].offsetLeft - allCards[0].offsetLeft;
+    }
+    if (!loopWidth || loopWidth <= 0) {
+      loopWidth = container.scrollWidth / 2;
+    }
+  }
+
+  calculateLoopWidth();
+  window.addEventListener('resize', calculateLoopWidth, { passive: true });
+
+  // Auto-scroll loop
+  function autoScrollStep() {
+    if (window.innerWidth <= 768) {
+      if (!isPaused && !isUserInteracting && !isExpanded) {
+        container.scrollLeft += scrollSpeed;
+        if (loopWidth > 0 && container.scrollLeft >= loopWidth) {
+          container.scrollLeft -= loopWidth;
+        }
+      }
+    }
+    requestAnimationFrame(autoScrollStep);
+  }
+  requestAnimationFrame(autoScrollStep);
+
+  // Expand card details & center in view
+  function expandCard(card) {
+    if (activeCard && activeCard !== card) {
+      activeCard.classList.remove('is-expanded');
+      const oldHint = activeCard.querySelector('.hint-text');
+      if (oldHint) oldHint.textContent = 'แตะเพื่อดูรายละเอียด';
+    }
+
+    card.classList.add('is-expanded');
+    const hint = card.querySelector('.hint-text');
+    if (hint) hint.textContent = 'แตะเพื่อย่อเก็บ';
+
+    activeCard = card;
+    isExpanded = true;
+    isPaused = true;
+    clearTimeout(resumeTimer);
+
+    // Smoothly scroll the card to the center of the carousel
+    setTimeout(() => {
+      const containerRect = container.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const offset = (cardRect.left - containerRect.left) - (containerRect.width - cardRect.width) / 2;
+      container.scrollTo({
+        left: container.scrollLeft + offset,
+        behavior: 'smooth'
+      });
+    }, 50);
+  }
+
+  // Collapse active card & resume auto-scroll
+  function collapseActiveCard() {
+    if (!activeCard) return;
+    activeCard.classList.remove('is-expanded');
+    const hint = activeCard.querySelector('.hint-text');
+    if (hint) hint.textContent = 'แตะเพื่อดูรายละเอียด';
+
+    activeCard = null;
+    isExpanded = false;
+
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => {
+      if (!isUserInteracting && !isExpanded) {
+        isPaused = false;
+      }
+    }, 450);
+  }
+
+  // Touch and drag handling
+  container.addEventListener('touchstart', (e) => {
+    if (window.innerWidth > 768) return;
+    isUserInteracting = true;
+    clearTimeout(resumeTimer);
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    isDragging = false;
+  }, { passive: true });
+
+  container.addEventListener('touchmove', (e) => {
+    if (window.innerWidth > 768) return;
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - startX);
+    const dy = Math.abs(touch.clientY - startY);
+    if (dx > 8 || dy > 8) {
+      isDragging = true;
+    }
+  }, { passive: true });
+
+  container.addEventListener('touchend', () => {
+    if (window.innerWidth > 768) return;
+    isUserInteracting = false;
+
+    // Seamless wrap during manual drag
+    if (loopWidth > 0) {
+      if (container.scrollLeft >= loopWidth) {
+        container.scrollLeft -= loopWidth;
+      } else if (container.scrollLeft <= 0) {
+        container.scrollLeft += loopWidth;
+      }
+    }
+
+    if (!isExpanded) {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => {
+        if (!isUserInteracting && !isExpanded) {
+          isPaused = false;
+        }
+      }, 2500);
+    }
+  }, { passive: true });
+
+  // Tap / click handler on cards
+  container.addEventListener('click', (e) => {
+    if (window.innerWidth > 768) return;
+    if (isDragging) {
+      isDragging = false;
+      return;
+    }
+
+    const card = e.target.closest('.exp-card');
+    if (!card) return;
+
+    if (card === activeCard) {
+      collapseActiveCard();
+    } else {
+      expandCard(card);
+    }
+  });
+
+  // Tap outside to collapse
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth > 768) return;
+    if (isExpanded && !container.contains(e.target)) {
+      collapseActiveCard();
+    }
   });
 }
 
@@ -424,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initGallery();
   initSmoothScroll();
   initCardTilt();
+  initMobileExperiencesCarousel();
   initMap();
   initSecurityHardening();
   initZoomGuard();
