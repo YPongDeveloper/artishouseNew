@@ -1555,6 +1555,11 @@ a {
     padding: 14px 20px 24px;
     width: 100%;
     cursor: grab;
+    scroll-padding: 0 20px;
+  }
+  .experiences-grid::after {
+    content: '';
+    flex: 0 0 4px;
   }
   .experiences-grid::-webkit-scrollbar {
     display: none;

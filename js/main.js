@@ -206,56 +206,60 @@ function initCardTilt() {
 }
 
 /* ===========================================
-   EXPERIENCES CAROUSEL (MOBILE AUTO-SCROLL & EXPAND)
+   EXPERIENCES CAROUSEL (MOBILE AUTO-SCROLL PING-PONG & EXPAND)
    =========================================== */
 function initMobileExperiencesCarousel() {
   const container = document.querySelector('.experiences-grid');
   if (!container) return;
 
-  const originalCards = Array.from(container.querySelectorAll('.exp-card:not(.is-clone)'));
-  if (originalCards.length === 0) return;
+  // Clean up any clone cards if previously injected
+  container.querySelectorAll('.exp-card.is-clone').forEach(el => el.remove());
 
-  // Clone cards once for continuous seamless looping on mobile
-  if (!container.querySelector('.exp-card.is-clone')) {
-    originalCards.forEach(card => {
-      const clone = card.cloneNode(true);
-      clone.classList.add('is-clone');
-      clone.classList.remove('revealed', 'reveal', 'delay-1', 'delay-2', 'delay-3', 'delay-4');
-      container.appendChild(clone);
-    });
-  }
+  const cards = Array.from(container.querySelectorAll('.exp-card'));
+  if (cards.length === 0) return;
 
   let isPaused = false;
   let isUserInteracting = false;
   let isExpanded = false;
+  let isReversing = false;
   let activeCard = null;
   let resumeTimer = null;
-  const scrollSpeed = 0.55; // Pixels per frame — smooth & leisurely
-  let loopWidth = 0;
+  let reversePauseTimer = null;
+  let scrollDirection = 1; // 1 = scroll right (revealing cards to the right), -1 = scroll left
+  const scrollSpeed = 0.65; // Pixels per frame
   let startX = 0;
   let startY = 0;
   let isDragging = false;
 
-  function calculateLoopWidth() {
-    const allCards = container.querySelectorAll('.exp-card');
-    if (allCards.length >= 5) {
-      loopWidth = allCards[4].offsetLeft - allCards[0].offsetLeft;
-    }
-    if (!loopWidth || loopWidth <= 0) {
-      loopWidth = container.scrollWidth / 2;
-    }
-  }
-
-  calculateLoopWidth();
-  window.addEventListener('resize', calculateLoopWidth, { passive: true });
-
-  // Auto-scroll loop
+  // Auto-scroll engine with ping-pong direction reversal
   function autoScrollStep() {
     if (window.innerWidth <= 768) {
-      if (!isPaused && !isUserInteracting && !isExpanded) {
-        container.scrollLeft += scrollSpeed;
-        if (loopWidth > 0 && container.scrollLeft >= loopWidth) {
-          container.scrollLeft -= loopWidth;
+      if (!isPaused && !isUserInteracting && !isExpanded && !isReversing) {
+        const maxScroll = container.scrollWidth - container.clientWidth;
+
+        if (maxScroll > 10) {
+          container.scrollLeft += scrollSpeed * scrollDirection;
+
+          // Reached right end (last card)
+          if (scrollDirection === 1 && container.scrollLeft >= maxScroll - 1) {
+            container.scrollLeft = maxScroll;
+            isReversing = true;
+            clearTimeout(reversePauseTimer);
+            reversePauseTimer = setTimeout(() => {
+              scrollDirection = -1; // Reverse to scroll left
+              isReversing = false;
+            }, 1400); // 1.4s comfortable pause on the last card
+          }
+          // Reached left end (first card)
+          else if (scrollDirection === -1 && container.scrollLeft <= 1) {
+            container.scrollLeft = 0;
+            isReversing = true;
+            clearTimeout(reversePauseTimer);
+            reversePauseTimer = setTimeout(() => {
+              scrollDirection = 1; // Reverse to scroll right
+              isReversing = false;
+            }, 1400); // 1.4s comfortable pause on the first card
+          }
         }
       }
     }
@@ -279,6 +283,8 @@ function initMobileExperiencesCarousel() {
     isExpanded = true;
     isPaused = true;
     clearTimeout(resumeTimer);
+    clearTimeout(reversePauseTimer);
+    isReversing = false;
 
     // Smoothly scroll the card to the center of the carousel
     setTimeout(() => {
@@ -315,6 +321,8 @@ function initMobileExperiencesCarousel() {
     if (window.innerWidth > 768) return;
     isUserInteracting = true;
     clearTimeout(resumeTimer);
+    clearTimeout(reversePauseTimer);
+    isReversing = false;
     const touch = e.touches[0];
     startX = touch.clientX;
     startY = touch.clientY;
@@ -335,13 +343,11 @@ function initMobileExperiencesCarousel() {
     if (window.innerWidth > 768) return;
     isUserInteracting = false;
 
-    // Seamless wrap during manual drag
-    if (loopWidth > 0) {
-      if (container.scrollLeft >= loopWidth) {
-        container.scrollLeft -= loopWidth;
-      } else if (container.scrollLeft <= 0) {
-        container.scrollLeft += loopWidth;
-      }
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    if (container.scrollLeft >= maxScroll - 8) {
+      scrollDirection = -1; // If user scrolled to end, scroll back left next
+    } else if (container.scrollLeft <= 8) {
+      scrollDirection = 1;  // If user scrolled to start, scroll right next
     }
 
     if (!isExpanded) {
@@ -350,7 +356,7 @@ function initMobileExperiencesCarousel() {
         if (!isUserInteracting && !isExpanded) {
           isPaused = false;
         }
-      }, 2500);
+      }, 2000);
     }
   }, { passive: true });
 
