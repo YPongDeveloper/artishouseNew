@@ -206,7 +206,7 @@ function initCardTilt() {
 }
 
 /* ===========================================
-   EXPERIENCES CAROUSEL (MOBILE AUTO-SCROLL PING-PONG & EXPAND)
+   EXPERIENCES CAROUSEL (RESPONSIVE AUTO-SCROLL PING-PONG & EXPAND)
    =========================================== */
 function initMobileExperiencesCarousel() {
   const container = document.querySelector('.experiences-grid');
@@ -225,44 +225,61 @@ function initMobileExperiencesCarousel() {
   let activeCard = null;
   let resumeTimer = null;
   let reversePauseTimer = null;
-  let scrollDirection = 1; // 1 = scroll right (revealing cards to the right), -1 = scroll left
-  const scrollSpeed = 0.65; // Pixels per frame
+  let scrollDirection = 1; // 1 = scroll right, -1 = scroll left
+  const scrollSpeed = 0.7; // Pixels per frame — smooth & steady
+  let currentScrollPos = container.scrollLeft;
+
   let startX = 0;
   let startY = 0;
   let isDragging = false;
+  let isMouseDown = false;
+  let mouseStartX = 0;
+  let mouseScrollStart = 0;
 
-  // Auto-scroll engine with ping-pong direction reversal
+  // Keep track of manual scrolling
+  container.addEventListener('scroll', () => {
+    if (isUserInteracting) {
+      currentScrollPos = container.scrollLeft;
+    }
+  }, { passive: true });
+
+  // Auto-scroll loop with ping-pong bounce
   function autoScrollStep() {
-    if (window.innerWidth <= 768) {
+    const maxScroll = container.scrollWidth - container.clientWidth;
+
+    // Automatically activates whenever the cards overflow (mobile, tablet, or desktop resized window)
+    if (maxScroll > 15) {
       if (!isPaused && !isUserInteracting && !isExpanded && !isReversing) {
-        const maxScroll = container.scrollWidth - container.clientWidth;
+        currentScrollPos += scrollSpeed * scrollDirection;
 
-        if (maxScroll > 10) {
-          container.scrollLeft += scrollSpeed * scrollDirection;
-
-          // Reached right end (last card)
-          if (scrollDirection === 1 && container.scrollLeft >= maxScroll - 1) {
-            container.scrollLeft = maxScroll;
-            isReversing = true;
-            clearTimeout(reversePauseTimer);
-            reversePauseTimer = setTimeout(() => {
-              scrollDirection = -1; // Reverse to scroll left
-              isReversing = false;
-            }, 1400); // 1.4s comfortable pause on the last card
-          }
-          // Reached left end (first card)
-          else if (scrollDirection === -1 && container.scrollLeft <= 1) {
-            container.scrollLeft = 0;
-            isReversing = true;
-            clearTimeout(reversePauseTimer);
-            reversePauseTimer = setTimeout(() => {
-              scrollDirection = 1; // Reverse to scroll right
-              isReversing = false;
-            }, 1400); // 1.4s comfortable pause on the first card
-          }
+        // Reached right end (last card)
+        if (scrollDirection === 1 && currentScrollPos >= maxScroll - 1) {
+          currentScrollPos = maxScroll;
+          container.scrollLeft = maxScroll;
+          isReversing = true;
+          clearTimeout(reversePauseTimer);
+          reversePauseTimer = setTimeout(() => {
+            scrollDirection = -1; // Reverse to left
+            isReversing = false;
+          }, 1400); // 1.4s comfortable pause
+        }
+        // Reached left end (first card)
+        else if (scrollDirection === -1 && currentScrollPos <= 1) {
+          currentScrollPos = 0;
+          container.scrollLeft = 0;
+          isReversing = true;
+          clearTimeout(reversePauseTimer);
+          reversePauseTimer = setTimeout(() => {
+            scrollDirection = 1; // Reverse to right
+            isReversing = false;
+          }, 1400); // 1.4s comfortable pause
+        }
+        else {
+          container.scrollLeft = currentScrollPos;
         }
       }
     }
+
     requestAnimationFrame(autoScrollStep);
   }
   requestAnimationFrame(autoScrollStep);
@@ -291,10 +308,12 @@ function initMobileExperiencesCarousel() {
       const containerRect = container.getBoundingClientRect();
       const cardRect = card.getBoundingClientRect();
       const offset = (cardRect.left - containerRect.left) - (containerRect.width - cardRect.width) / 2;
+      const target = container.scrollLeft + offset;
       container.scrollTo({
-        left: container.scrollLeft + offset,
+        left: target,
         behavior: 'smooth'
       });
+      currentScrollPos = target;
     }, 50);
   }
 
@@ -311,14 +330,14 @@ function initMobileExperiencesCarousel() {
     clearTimeout(resumeTimer);
     resumeTimer = setTimeout(() => {
       if (!isUserInteracting && !isExpanded) {
+        currentScrollPos = container.scrollLeft;
         isPaused = false;
       }
     }, 450);
   }
 
-  // Touch and drag handling
+  // Touch handling (Mobile & Tablet)
   container.addEventListener('touchstart', (e) => {
-    if (window.innerWidth > 768) return;
     isUserInteracting = true;
     clearTimeout(resumeTimer);
     clearTimeout(reversePauseTimer);
@@ -327,27 +346,28 @@ function initMobileExperiencesCarousel() {
     startX = touch.clientX;
     startY = touch.clientY;
     isDragging = false;
+    currentScrollPos = container.scrollLeft;
   }, { passive: true });
 
   container.addEventListener('touchmove', (e) => {
-    if (window.innerWidth > 768) return;
     const touch = e.touches[0];
     const dx = Math.abs(touch.clientX - startX);
     const dy = Math.abs(touch.clientY - startY);
     if (dx > 8 || dy > 8) {
       isDragging = true;
     }
+    currentScrollPos = container.scrollLeft;
   }, { passive: true });
 
   container.addEventListener('touchend', () => {
-    if (window.innerWidth > 768) return;
     isUserInteracting = false;
+    currentScrollPos = container.scrollLeft;
 
     const maxScroll = container.scrollWidth - container.clientWidth;
     if (container.scrollLeft >= maxScroll - 8) {
-      scrollDirection = -1; // If user scrolled to end, scroll back left next
+      scrollDirection = -1;
     } else if (container.scrollLeft <= 8) {
-      scrollDirection = 1;  // If user scrolled to start, scroll right next
+      scrollDirection = 1;
     }
 
     if (!isExpanded) {
@@ -360,9 +380,58 @@ function initMobileExperiencesCarousel() {
     }
   }, { passive: true });
 
-  // Tap / click handler on cards
+  // Mouse Drag handling (Desktop resized window)
+  container.addEventListener('mousedown', (e) => {
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    if (maxScroll <= 15) return;
+    isMouseDown = true;
+    isUserInteracting = true;
+    isDragging = false;
+    mouseStartX = e.pageX;
+    mouseScrollStart = container.scrollLeft;
+    clearTimeout(resumeTimer);
+    clearTimeout(reversePauseTimer);
+    isReversing = false;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isMouseDown) return;
+    const dx = e.pageX - mouseStartX;
+    if (Math.abs(dx) > 6) {
+      isDragging = true;
+    }
+    container.scrollLeft = mouseScrollStart - dx;
+    currentScrollPos = container.scrollLeft;
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!isMouseDown) return;
+    isMouseDown = false;
+    isUserInteracting = false;
+    currentScrollPos = container.scrollLeft;
+
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    if (container.scrollLeft >= maxScroll - 8) {
+      scrollDirection = -1;
+    } else if (container.scrollLeft <= 8) {
+      scrollDirection = 1;
+    }
+
+    if (!isExpanded) {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => {
+        if (!isUserInteracting && !isExpanded) {
+          isPaused = false;
+        }
+      }, 1500);
+    }
+  });
+
+  // Tap / Click handler on cards
   container.addEventListener('click', (e) => {
-    if (window.innerWidth > 768) return;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    if (maxScroll <= 15 && window.innerWidth > 768) return;
+
     if (isDragging) {
       isDragging = false;
       return;
@@ -380,7 +449,9 @@ function initMobileExperiencesCarousel() {
 
   // Tap outside to collapse
   document.addEventListener('click', (e) => {
-    if (window.innerWidth > 768) return;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    if (maxScroll <= 15 && window.innerWidth > 768) return;
+
     if (isExpanded && !container.contains(e.target)) {
       collapseActiveCard();
     }
